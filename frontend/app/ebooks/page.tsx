@@ -1,93 +1,77 @@
-'use client'
-import { useState } from 'react'
-import { Play, Square } from 'lucide-react'
+"use client";
+import { useState, useEffect } from 'react';
 
-// Mock Database of Books
-const BOOKS = [
-  {
-    id: 1,
-    title: "The Silent Forest",
-    content: "The forest was unusually quiet today. The wind did not howl, and the birds were entirely silent. It felt as if nature itself was holding its breath.",
-    lang: "en-US",
-    langName: "English"
-  },
-  {
-    id: 2,
-    title: "शांत जंगल (Hindi)",
-    content: "आज जंगल असामान्य रूप से शांत था। हवा नहीं चल रही थी, और पक्षी पूरी तरह से चुप थे। ऐसा लग रहा था मानो प्रकृति ने ही अपनी सांस रोक ली हो।",
-    lang: "hi-IN",
-    langName: "Hindi"
-  }
-]
+interface Book {
+  id: string;
+  title: string;
+  language: string;
+  content: string;
+}
 
-export default function Ebooks() {
-  const [selectedBook, setSelectedBook] = useState(BOOKS[0])
-  const [isPlaying, setIsPlaying] = useState(false)
+export default function EbooksPage() {
+  const [books, setBooks] = useState<Book[]>([]);
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
-  const playAudio = () => {
-    if (!window.speechSynthesis) {
-      alert("Your browser does not support text-to-speech.")
-      return
-    }
-    
-    // Stop any current audio
-    window.speechSynthesis.cancel()
-
-    const utterance = new SpeechSynthesisUtterance(selectedBook.content)
-    utterance.lang = selectedBook.lang
-    
-    utterance.onend = () => setIsPlaying(false)
-    
-    window.speechSynthesis.speak(utterance)
-    setIsPlaying(true)
-  }
-
-  const stopAudio = () => {
-    window.speechSynthesis.cancel()
-    setIsPlaying(false)
-  }
+  // Mock or fetch your books from backend
+  useEffect(() => {
+    // Example data matching your screenshot
+    const fetchedBooks = [
+      { id: '1', title: 'The Silent Forest', language: 'English', content: 'The forest was unusually quiet today. The wind did not howl, and the birds were entirely silent. It felt as if nature itself was holding its breath.' },
+      { id: '2', title: 'शांत जंगल (Hindi)', language: 'Hindi', content: 'आज जंगल असामान्य रूप से शांत था। हवा नहीं चली, और पक्षी पूरी तरह चुप थे।' }
+    ];
+    setBooks(fetchedBooks);
+    setSelectedBook(fetchedBooks[0]);
+  }, []);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      {/* Sidebar: Book List */}
-      <div className="md:col-span-1 bg-white p-4 rounded-xl shadow-sm border h-fit">
-        <h2 className="font-bold text-lg mb-4 text-gray-900 border-b pb-2">Available Books</h2>
-        <ul className="space-y-2">
-          {BOOKS.map(book => (
-            <li key={book.id}>
-              <button 
-                onClick={() => { setSelectedBook(book); stopAudio(); }}
-                className={`w-full text-left p-3 rounded-md transition ${selectedBook.id === book.id ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'hover:bg-gray-50 text-gray-700'}`}
-              >
-                {book.title}
-                <span className="block text-xs text-gray-400 mt-1">Language: {book.langName}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <h1 className="text-3xl font-extrabold text-slate-900 mb-8 border-b pb-4">
+        Available Books
+      </h1>
 
-      {/* Main Content: Reader & Player */}
-      <div className="md:col-span-2 bg-white p-6 rounded-xl shadow-sm border min-h-[60vh] flex flex-col">
-        <div className="flex justify-between items-center mb-6 border-b pb-4">
-          <h1 className="text-2xl font-bold text-gray-900">{selectedBook.title}</h1>
-          <div className="flex gap-2">
-            {!isPlaying ? (
-              <button onClick={playAudio} className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm font-medium transition">
-                <Play size={16} /> Listen
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Books List Sidebar */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-slate-700">Library</h2>
+          <div className="flex flex-col space-y-2">
+            {books.map((book) => (
+              <button
+                key={book.id}
+                onClick={() => setSelectedBook(book)}
+                className={`text-left p-4 rounded-lg border transition-all ${
+                  selectedBook?.id === book.id
+                    ? 'border-indigo-600 bg-indigo-50 text-indigo-900 shadow-sm'
+                    : 'border-gray-200 bg-white hover:bg-gray-50 text-slate-800'
+                }`}
+              >
+                <div className="font-bold">{book.title}</div>
+                <div className="text-xs text-slate-500 mt-1 uppercase tracking-wider">Language: {book.language}</div>
               </button>
-            ) : (
-              <button onClick={stopAudio} className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 text-sm font-medium transition">
-                <Square size={16} /> Stop
-              </button>
-            )}
+            ))}
           </div>
         </div>
-        
-        <div className="flex-grow bg-yellow-50/50 p-6 rounded-lg text-lg text-gray-800 leading-relaxed font-serif whitespace-pre-wrap shadow-inner">
-          {selectedBook.content}
+
+        {/* Selected Book Reader View */}
+        <div className="md:col-span-2 bg-white border border-gray-200 rounded-xl p-6 sm:p-8 shadow-sm">
+          {selectedBook ? (
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">{selectedBook.title}</h2>
+              
+              <div className="mb-6 flex items-center">
+                <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm text-sm font-medium">
+                  <span>▶ Listen</span>
+                </button>
+              </div>
+
+              <div className="prose max-w-none text-slate-700 leading-relaxed text-lg border-t pt-4">
+                {selectedBook.content}
+              </div>
+            </div>
+          ) : (
+            <p className="text-slate-500">Select a book to start reading.</p>
+          )}
         </div>
       </div>
     </div>
-  )
+  );
 }
