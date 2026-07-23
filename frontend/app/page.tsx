@@ -5,10 +5,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-900">
       
       {/* Navigation Bar */}
-      <header className="w-full bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            {/* Logo */}
+     
             <div className="flex-shrink-0 flex items-center">
               <span className="text-2xl font-bold text-indigo-600 tracking-tight">VidoeBooks</span>
             </div>
